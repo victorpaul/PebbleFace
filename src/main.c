@@ -25,7 +25,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
 void bluetoothHandler(bool connected) {
   if (connected) {
-    text_layer_set_text(s_bt_layer, "Z");
+    text_layer_set_text(s_bt_layer, "B");
   } else {
     text_layer_set_text(s_bt_layer, "-");
   }  
@@ -92,6 +92,8 @@ static void main_window_load(Window *window) {
   applyBlackStyle(s_phone_battery_layer);
   applyWhiteStyle(s_network_layer);
   applyBlackStyle(s_weather_layer);
+  
+  text_layer_set_font(s_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
 
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));

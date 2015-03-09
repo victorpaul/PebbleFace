@@ -6,8 +6,7 @@ static void pushTimeToLayer(TextLayer *time_layer,TextLayer *date_layer) {
   time_t temp = time(NULL);
   struct tm *tick_time = localtime(&temp);
   static char buffer[16];
-  static char buffer_date[16];
-  static char date_buffer[] = "00/00/00";
+  static char buffer_date[64];
 
   if(clock_is_24h_style() == true) {
     strftime(buffer, sizeof(buffer), "%H:%M", tick_time);
@@ -16,7 +15,7 @@ static void pushTimeToLayer(TextLayer *time_layer,TextLayer *date_layer) {
   }
   text_layer_set_text(time_layer,buffer);
   
-  strftime(buffer_date, sizeof(buffer_date), "%D", tick_time);
+  strftime(buffer_date, sizeof(buffer_date), "%d %A(%u)%n%B(%m) %Y", tick_time);
   text_layer_set_text(date_layer,buffer_date);  
 }
 
