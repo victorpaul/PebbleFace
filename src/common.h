@@ -2,18 +2,22 @@
 #include <constants.h>
 
 // handle current time
-static void pushTimeToLayer(TextLayer *time_layer) {
+static void pushTimeToLayer(TextLayer *time_layer,TextLayer *date_layer) {
   time_t temp = time(NULL);
   struct tm *tick_time = localtime(&temp);
-  static char buffer[20];  
+  static char buffer[16];
+  static char buffer_date[16];
+  static char date_buffer[] = "00/00/00";
 
   if(clock_is_24h_style() == true) {
     strftime(buffer, sizeof(buffer), "%H:%M", tick_time);
   } else {
     strftime(buffer, sizeof(buffer), "%I:%M", tick_time);
   }
-
   text_layer_set_text(time_layer,buffer);
+  
+  strftime(buffer_date, sizeof(buffer_date), "%D", tick_time);
+  text_layer_set_text(date_layer,buffer_date);  
 }
 
 // handle current watch batterry status
@@ -32,15 +36,18 @@ static void pushPhoneBatteryToLayout(TextLayer *battery_layer,int batteryLevel,i
   static char s_battery_buffer[16];
   switch(batteryStatus){
     case KEY_BATTERY_CHARGING_NONE:
-      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(off)", batteryLevel);
+      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(-)", batteryLevel);
       break;
     case KEY_BATTERY_CHARGING_USB:
       snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(usb)", batteryLevel);
       break;
     case KEY_BATTERY_CHARGING_SET:
-      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(onl)", batteryLevel);
+      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(ac)", batteryLevel);
       break;
-  }  
+    case KEY_BATTERY_CHARGING_WIRELESS:
+      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(qi)", batteryLevel);
+      break;
+  }
   text_layer_set_text(battery_layer, s_battery_buffer);
 }
 

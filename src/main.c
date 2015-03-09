@@ -20,7 +20,7 @@ static void battery_handler(BatteryChargeState charge_state) {
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-  pushTimeToLayer(s_time_layer);
+  pushTimeToLayer(s_time_layer,s_date_layer);
 }
 
 void bluetoothHandler(bool connected) {
@@ -40,6 +40,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       case KEY_BATTERY_CHARGING_NONE:
       case KEY_BATTERY_CHARGING_USB:
       case KEY_BATTERY_CHARGING_SET:
+      case KEY_BATTERY_CHARGING_WIRELESS:
         batteryStatus = t->key;
         persist_write_int(KEY_BATTERY_CHARGING,batteryStatus);
         pushPhoneBatteryToLayout(s_phone_battery_layer,batteryLevel,batteryStatus);
@@ -60,10 +61,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       case KEY_WEATHER:
         text_layer_set_text(s_weather_layer,t->value->cstring);
         persist_write_string(KEY_WEATHER, t->value->cstring);
-        break;
-      case KEY_DATE:
-        text_layer_set_text(s_date_layer,t->value->cstring);
-        persist_write_string(KEY_DATE, t->value->cstring);
         break;
     }
     
@@ -110,7 +107,7 @@ static void main_window_load(Window *window) {
 
   // handle time
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  pushTimeToLayer(s_time_layer);
+  pushTimeToLayer(s_time_layer,s_date_layer);
 
   // handle pebble batterry
   battery_state_service_subscribe(battery_handler);
@@ -122,10 +119,6 @@ static void main_window_load(Window *window) {
   
   networkStatus = persist_read_int(KEY_NETWORK);
   pushPhoneNetworkStatusToLayout(s_network_layer,networkStatus);
-  
-  static char date[16];
-  persist_read_string(KEY_DATE,date,sizeof(date));
-  text_layer_set_text(s_date_layer,date);
   
   static char weather[16];
   persist_read_string(KEY_WEATHER,weather,sizeof(weather));
