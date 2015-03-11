@@ -4,13 +4,13 @@
         ""
     ],
     "companyName": "victorpaul.war@gmail.com",
-    "longName": "Friendly Watchface",
+    "longName": "Friendly Phone Watch Helper",
     "projectType": "native",
     "resources": {
         "media": []
     },
     "sdkVersion": "2",
-    "shortName": "ff",
+    "shortName": "Friendly Watch",
     "uuid": "7b7c495e-1c45-48b6-85f9-7568adf74ec6",
     "versionCode": 1,
     "versionLabel": "1.0",

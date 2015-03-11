@@ -15,7 +15,7 @@ static void pushTimeToLayer(TextLayer *time_layer,TextLayer *date_layer) {
   }
   text_layer_set_text(time_layer,buffer);
   
-  strftime(buffer_date, sizeof(buffer_date), "%d %A(%u)%n%B(%m) %Y", tick_time);
+  strftime(buffer_date, sizeof(buffer_date), "%A(%u)%n %d %B(%m)", tick_time);
   text_layer_set_text(date_layer,buffer_date);  
 }
 
