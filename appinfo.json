@@ -7,7 +7,63 @@
     "longName": "Friendly Phone Watch Helper",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/pbl_100.png",
+                "name": "IMAGE_PBL_100",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_90.png",
+                "name": "IMAGE_PBL_90",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_80.png",
+                "name": "IMAGE_PBL_80",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_70.png",
+                "name": "IMAGE_PBL_70",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_60.png",
+                "name": "IMAGE_PBL_60",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_50.png",
+                "name": "IMAGE_PBL_50",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_40.png",
+                "name": "IMAGE_PBL_40",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_30.png",
+                "name": "IMAGE_PBL_30",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_20.png",
+                "name": "IMAGE_PBL_20",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_10.png",
+                "name": "IMAGE_PBL_10",
+                "type": "png"
+            },
+            {
+                "file": "images/pbl_charging.png",
+                "name": "IMAGE_PBL_CHARGING",
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "2",
     "shortName": "Friendly Watch",

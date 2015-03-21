@@ -19,15 +19,33 @@ static void pushTimeToLayer(TextLayer *time_layer,TextLayer *date_layer) {
   text_layer_set_text(date_layer,buffer_date);  
 }
 
-// handle current watch batterry status
-static void pushBatteryStateToLayout(BatteryChargeState charge_state,TextLayer *battery_layer){
-  static char s_battery_buffer[16];
+static uint32_t getBatterryStatus(BatteryChargeState charge_state){
   if (charge_state.is_charging) {
-    snprintf(s_battery_buffer, sizeof(s_battery_buffer), "charging");
+    return RESOURCE_ID_IMAGE_PBL_CHARGING;
   } else {
-    snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%", charge_state.charge_percent);
+    switch(charge_state.charge_percent/10){
+      case 10:
+        return RESOURCE_ID_IMAGE_PBL_100;
+      case 9:
+        return RESOURCE_ID_IMAGE_PBL_90;
+      case 8:
+        return RESOURCE_ID_IMAGE_PBL_80;
+      case 7:
+        return RESOURCE_ID_IMAGE_PBL_70;
+      case 6:
+        return RESOURCE_ID_IMAGE_PBL_60;
+      case 5:
+        return RESOURCE_ID_IMAGE_PBL_50;
+      case 4:
+        return RESOURCE_ID_IMAGE_PBL_40;
+      case 3:
+        return RESOURCE_ID_IMAGE_PBL_30;
+      case 2:
+        return RESOURCE_ID_IMAGE_PBL_20;
+    }
   }
-  text_layer_set_text(battery_layer, s_battery_buffer);
+  // return 10% by default
+  return RESOURCE_ID_IMAGE_PBL_10;
 }
 
 // push phone battery status

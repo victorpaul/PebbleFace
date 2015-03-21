@@ -3,20 +3,42 @@
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
-static TextLayer *s_battery_layer;
 static TextLayer *s_phone_battery_layer;
 static TextLayer *s_date_layer;
 static TextLayer *s_bt_layer;
 static TextLayer *s_network_layer;
 static TextLayer *s_weather_layer;
 
+static Layer *s_image_layer;
+static GRect bounds;
+static GBitmap *s_bitmap_pbl_battery;
+
 // global variable
 static int batteryLevel = KEY_BATTERY_LEVEL_MIN;
 static int batteryStatus = KEY_BATTERY_CHARGING_NONE;
 static int networkStatus = KEY_NETWORK_OFF;
 
+static void layer_update_callback(Layer *layer, GContext* ctx) {
+  graphics_draw_bitmap_in_rect(ctx, s_bitmap_pbl_battery, GRect(94,1,49,20));//x,y,width,height
+  
+  
+  char str[15];
+  snprintf(str, sizeof(str), "%d",networkStatus);
+  /*
+  graphics_context_set_text_color(ctx, GColorBlack);
+  graphics_draw_text(
+    ctx, 
+    str,
+    fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD),
+    GRect(94,20, 49,20),
+    GTextOverflowModeTrailingEllipsis,
+    GTextAlignmentCenter,
+    NULL
+  );//*/
+}
+
 static void battery_handler(BatteryChargeState charge_state) {
-  pushBatteryStateToLayout(charge_state,s_battery_layer);
+  s_bitmap_pbl_battery = gbitmap_create_with_resource(getBatterryStatus(charge_state));
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
@@ -70,6 +92,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
 static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_frame(window_layer);
 
   int lineHeight = PEBBLE_SCREEN_HEIGHT/4;
   int level1 = 0;
@@ -78,7 +101,6 @@ static void main_window_load(Window *window) {
   int level4 = lineHeight * 3;
 
   s_time_layer = text_layer_create(GRect(0, level1, PEBBLE_SCREEN_WIDTH/2, lineHeight));
-  s_battery_layer = text_layer_create(GRect(PEBBLE_SCREEN_WIDTH/2, level1, PEBBLE_SCREEN_WIDTH/2, lineHeight));
   s_bt_layer = text_layer_create(GRect(0, level2, 20,lineHeight));
   s_date_layer = text_layer_create(GRect(20, level2, PEBBLE_SCREEN_WIDTH-20,lineHeight));
   s_phone_battery_layer = text_layer_create(GRect(PEBBLE_SCREEN_WIDTH/3, level3, PEBBLE_SCREEN_WIDTH-PEBBLE_SCREEN_WIDTH/3, lineHeight));
@@ -87,7 +109,6 @@ static void main_window_load(Window *window) {
 
   applyBlackStyle(s_bt_layer);
   applyBlackStyle(s_time_layer);
-  applyWhiteStyle(s_battery_layer);
   applyWhiteStyle(s_date_layer);
   applyBlackStyle(s_phone_battery_layer);
   applyWhiteStyle(s_network_layer);
@@ -96,7 +117,6 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
 
   layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
-  layer_add_child(window_layer, text_layer_get_layer(s_battery_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_phone_battery_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_network_layer));
   layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
@@ -125,17 +145,24 @@ static void main_window_load(Window *window) {
   static char weather[16];
   persist_read_string(KEY_WEATHER,weather,sizeof(weather));
   text_layer_set_text(s_weather_layer,weather);
+  
+  s_image_layer = layer_create(bounds);
+  layer_set_update_proc(s_image_layer, layer_update_callback);
+  layer_add_child(window_layer, s_image_layer);
+  
 }
 
 static void main_window_unload(Window *window) {
   // Destroy output TextLayer
   text_layer_destroy(s_time_layer);
-  text_layer_destroy(s_battery_layer);
   text_layer_destroy(s_phone_battery_layer);
   text_layer_destroy(s_date_layer);
   text_layer_destroy(s_network_layer);
   text_layer_destroy(s_weather_layer);
-  text_layer_destroy(s_bt_layer);  
+  text_layer_destroy(s_bt_layer);
+  
+  layer_destroy(s_image_layer);
+  gbitmap_destroy(s_bitmap_pbl_battery);
 }
 
 static void init() {
