@@ -11,6 +11,9 @@ static TextLayer *s_weather_layer;
 
 static Layer *s_image_layer;
 static GRect bounds;
+
+static int pblBatteryLevel;
+static uint32_t pblBatteryResorce;
 static GBitmap *s_bitmap_pbl_battery;
 
 // global variable
@@ -20,25 +23,23 @@ static int networkStatus = KEY_NETWORK_OFF;
 
 static void layer_update_callback(Layer *layer, GContext* ctx) {
   graphics_draw_bitmap_in_rect(ctx, s_bitmap_pbl_battery, GRect(94,1,49,20));//x,y,width,height
-  
-  
+
   char str[15];
-  snprintf(str, sizeof(str), "%d",networkStatus);
-  /*
+  snprintf(str, sizeof(str), "%d%%",pblBatteryLevel);
   graphics_context_set_text_color(ctx, GColorBlack);
   graphics_draw_text(
-    ctx, 
-    str,
-    fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD),
-    GRect(94,20, 49,20),
-    GTextOverflowModeTrailingEllipsis,
-    GTextAlignmentCenter,
-    NULL
-  );//*/
+    ctx,str,
+    fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD),
+    GRect(94,20, 49,20),GTextOverflowModeTrailingEllipsis,GTextAlignmentCenter,NULL);
 }
 
 static void battery_handler(BatteryChargeState charge_state) {
-  s_bitmap_pbl_battery = gbitmap_create_with_resource(getBatterryStatus(charge_state));
+  pblBatteryLevel = charge_state.charge_percent;
+  uint32_t newResourse = getBatterryStatus(charge_state);
+  if(pblBatteryResorce != newResourse){
+    pblBatteryResorce = newResourse;
+    s_bitmap_pbl_battery = gbitmap_create_with_resource(pblBatteryResorce);
+  }
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
