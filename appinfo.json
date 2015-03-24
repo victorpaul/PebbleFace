@@ -9,6 +9,31 @@
     "resources": {
         "media": [
             {
+                "file": "images/phone_network_wifi.png",
+                "name": "IMAGE_PHONE_NETWORK_WIFI",
+                "type": "png"
+            },
+            {
+                "file": "images/phone_network_no.png",
+                "name": "IMAGE_PHONE_NETWORK_NO",
+                "type": "png"
+            },
+            {
+                "file": "images/phone_network_mobile.png",
+                "name": "IMAGE_PHONE_NETWORK_MOBILE",
+                "type": "png"
+            },
+            {
+                "file": "images/phone_connection_no.png",
+                "name": "IMAGE_PHONE_CONNECTION_NO",
+                "type": "png"
+            },
+            {
+                "file": "images/phone_connection_yes.png",
+                "name": "IMAGE_PHONE_CONNECTION_YES",
+                "type": "png"
+            },
+            {
                 "file": "images/pbl_100.png",
                 "name": "IMAGE_PBL_100",
                 "type": "png"

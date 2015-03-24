@@ -19,7 +19,7 @@ static void pushTimeToLayer(TextLayer *time_layer,TextLayer *date_layer) {
   text_layer_set_text(date_layer,buffer_date);  
 }
 
-static uint32_t getBatterryStatus(BatteryChargeState charge_state){
+static uint32_t getPebbleBatteryImageResource(BatteryChargeState charge_state){
   if (charge_state.is_charging) {
     return RESOURCE_ID_IMAGE_PBL_CHARGING;
   } else {
@@ -68,37 +68,23 @@ static void pushPhoneBatteryToLayout(TextLayer *battery_layer,int batteryLevel,i
   text_layer_set_text(battery_layer, s_battery_buffer);
 }
 
-static void pushPhoneNetworkStatusToLayout(TextLayer *s_network_layer,int networkStatus){
-  static char s_network_buffer[16];
+static void pushPhoneNetworkStatusToLayout(BitmapLayer *s_bitmaplayer_network,GBitmap *s_res_image_phone_network,int networkStatus){
+  
   switch(networkStatus){
     case KEY_NETWORK_OFF:
-      snprintf(s_network_buffer, sizeof(s_network_buffer), "off");
+      s_res_image_phone_network = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PHONE_NETWORK_NO);
       break;
     case KEY_NETWORK_WIFI:
-      snprintf(s_network_buffer, sizeof(s_network_buffer), "wifi");
-      break;
-    case KEY_NETWORK_WIFI_MOBILE:
-      snprintf(s_network_buffer, sizeof(s_network_buffer), "mb/wf");
+      s_res_image_phone_network = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PHONE_NETWORK_WIFI);
       break;
     case KEY_NETWORK_MOBILE:
-      snprintf(s_network_buffer, sizeof(s_network_buffer), "mb");
+      s_res_image_phone_network = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PHONE_NETWORK_MOBILE);
       break;
   }
-  text_layer_set_text(s_network_layer, s_network_buffer);
+  bitmap_layer_set_bitmap(s_bitmaplayer_network, s_res_image_phone_network);
 }
 
-// sytle layout as black layout with white text
-static void applyBlackStyle(TextLayer *s_layer){
-  text_layer_set_background_color(s_layer, GColorBlack);
-  text_layer_set_text_color(s_layer, GColorWhite);
+static void applyTextStyle(TextLayer *s_layer){
   text_layer_set_font(s_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   text_layer_set_text_alignment(s_layer, GTextAlignmentCenter);
-}
-
-// sytle layout as white background with black text
-static void applyWhiteStyle(TextLayer *s_layer){
-  text_layer_set_background_color(s_layer, GColorWhite);
-  text_layer_set_text_color(s_layer, GColorBlack);
-  text_layer_set_font(s_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-  text_layer_set_text_alignment(s_layer, GTextAlignmentCenter);  
 }
