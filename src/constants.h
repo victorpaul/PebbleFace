@@ -17,3 +17,8 @@
 
 static int const PEBBLE_SCREEN_WIDTH = 144;
 static int const PEBBLE_SCREEN_HEIGHT = 168;
+
+static int const TRANSPARENT_BATTERY_X = 94;
+static int const TRANSPARENT_BATTERY_Y = 127;
+static int const TRANSPARENT_BATTERY_W = 36;
+static int const TRANSPARENT_BATTERY_H = 30;

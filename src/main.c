@@ -8,46 +8,48 @@ static TextLayer *s_weather_layer;
 // global variable
 static int batteryLevel = KEY_BATTERY_LEVEL_MIN;
 static int batteryStatus = KEY_BATTERY_CHARGING_NONE;
+static bool phoneConnected = false;
 static int networkStatus = KEY_NETWORK_OFF;
 
 static GBitmap *s_res_image_pbl;
-static GBitmap *s_res_image_phone_connection;
 static GBitmap *s_res_image_phone_network;
-static BitmapLayer *s_bitmaplayer_pebble_battery;
-static BitmapLayer *s_bitmaplayer_pebble_connection;
-static BitmapLayer *s_bitmaplayer_network;
 
+static GBitmap *s_res_image_fat_empty_android;
+static BitmapLayer *s_bitmaplayer_fat_empty_android;
+static InverterLayer *s_inverterlayer_phone_battery_level;
+
+static BitmapLayer *s_bitmaplayer_pebble_battery;
+static BitmapLayer *s_bitmaplayer_network;
 static TextLayer *s_textlayer_time;
 
+// Pebble battery
 static void pebbleBatteryHandler(BatteryChargeState charge_state) {
   s_res_image_pbl = gbitmap_create_with_resource(getPebbleBatteryImageResource(charge_state));
   bitmap_layer_set_bitmap(s_bitmaplayer_pebble_battery, s_res_image_pbl);
 }
 
+// update time
 static void updateTime(){
   time_t temp = time(NULL);
   struct tm *tick_time = localtime(&temp);
-  static char formattedTime[16];
+  static char formattedTime[32];
   if(clock_is_24h_style() == true) {
-    strftime(formattedTime, sizeof(formattedTime), "%H:%M", tick_time);
+    strftime(formattedTime, sizeof(formattedTime), "%H:%M%n%B %d", tick_time);
   } else {
-    strftime(formattedTime, sizeof(formattedTime), "%I:%M", tick_time);
+    strftime(formattedTime, sizeof(formattedTime), "%I:%M%n%B %d", tick_time);
   }
   // %A(%u)%n %d %B(%m)
   text_layer_set_text(s_textlayer_time,formattedTime);
 }
 
+// calls update time
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   updateTime();
 }
 
 void bluetoothHandler(bool connected) {
-  if (connected) {
-    s_res_image_phone_connection = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PHONE_CONNECTION_YES);
-  } else {
-    s_res_image_phone_connection = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PHONE_CONNECTION_NO);
-  }
-  bitmap_layer_set_bitmap(s_bitmaplayer_pebble_connection, s_res_image_phone_connection);
+  phoneConnected = connected;
+  pushPhoneBatteryToLayout(s_inverterlayer_phone_battery_level,s_phone_battery_layer,batteryLevel,batteryStatus,phoneConnected);
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -62,12 +64,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       case KEY_BATTERY_CHARGING_WIRELESS:
         batteryStatus = t->key;
         persist_write_int(KEY_BATTERY_CHARGING,batteryStatus);
-        pushPhoneBatteryToLayout(s_phone_battery_layer,batteryLevel,batteryStatus);
+        pushPhoneBatteryToLayout(s_inverterlayer_phone_battery_level,s_phone_battery_layer,batteryLevel,batteryStatus,phoneConnected);
         break;
       case KEY_BATTERY_LEVEL_MIN ... KEY_BATTERY_LEVEL_MAX:
         batteryLevel = t->key;
-        persist_write_int(KEY_BATTERY_LEVEL,batteryLevel);
-        pushPhoneBatteryToLayout(s_phone_battery_layer,batteryLevel,batteryStatus);
+        persist_write_int(KEY_BATTERY_LEVEL,batteryLevel);      
+        pushPhoneBatteryToLayout(s_inverterlayer_phone_battery_level,s_phone_battery_layer,batteryLevel,batteryStatus,phoneConnected);
         break;
       case KEY_NETWORK_OFF:
       case KEY_NETWORK_WIFI:
@@ -75,7 +77,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
       case KEY_NETWORK_MOBILE:
         networkStatus = t->key;
         persist_write_int(KEY_NETWORK,networkStatus);
-
         pushPhoneNetworkStatusToLayout(s_bitmaplayer_network,s_res_image_phone_network,networkStatus);
         break;
       case KEY_WEATHER:
@@ -88,61 +89,61 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   }
 }
 
-static void main_window_load(Window *window) {
+static void main_window_load(Window *window) {  
   Layer *window_layer = window_get_root_layer(window);
   window_set_fullscreen(window, true);
 
-  int lineHeight = PEBBLE_SCREEN_HEIGHT/4;
-  int level1 = 0;
-  int level2 = lineHeight;
-  int level3 = lineHeight * 2;
-  int level4 = lineHeight * 3;
+  // READ FROM DB
+  batteryLevel = persist_read_int(KEY_BATTERY_LEVEL);
+  batteryStatus = persist_read_int(KEY_BATTERY_CHARGING);
+  networkStatus = persist_read_int(KEY_NETWORK);
 
-  s_phone_battery_layer = text_layer_create(GRect(PEBBLE_SCREEN_WIDTH/2, level3, PEBBLE_SCREEN_WIDTH/2, lineHeight));
-  s_weather_layer = text_layer_create(GRect(0, level2, PEBBLE_SCREEN_WIDTH,lineHeight));
-
-  applyTextStyle(s_phone_battery_layer);
-  applyTextStyle(s_weather_layer);
-  
-  s_bitmaplayer_pebble_battery = bitmap_layer_create(GRect(94, 1, 50, 20));
-  s_bitmaplayer_pebble_connection = bitmap_layer_create(GRect(1, 1, 32, 32));
-  s_bitmaplayer_network = bitmap_layer_create(GRect(1, 104, 64, 64));
-    
-  // s_textlayer_time
-  s_textlayer_time = text_layer_create(GRect(35, 0, 50, 28));
-  text_layer_set_font(s_textlayer_time, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
-  
-  layer_add_child(window_layer, (Layer *)s_textlayer_time);
-  layer_add_child(window_layer, (Layer *)s_bitmaplayer_pebble_connection);
-  layer_add_child(window_layer, (Layer *)s_bitmaplayer_pebble_battery);
-  layer_add_child(window_layer, (Layer *)s_bitmaplayer_network);
-  
-  layer_add_child(window_layer, text_layer_get_layer(s_phone_battery_layer));
+  // CREATE WEATHER LAYER
+  s_weather_layer = text_layer_create(GRect(0, 72, PEBBLE_SCREEN_WIDTH,40)); 
+  text_layer_set_text_alignment(s_weather_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_weather_layer));
 
-  //handle btconnection
+  // CREATE LAYER pebble battery
+  s_bitmaplayer_pebble_battery = bitmap_layer_create(GRect(94, 10, 50, 20));
+  layer_add_child(window_layer, (Layer *)s_bitmaplayer_pebble_battery);
+  // CREATE NETWORK LAYOUT
+  s_bitmaplayer_network = bitmap_layer_create(GRect(1, 103, 64, 64));
+  layer_add_child(window_layer, (Layer *)s_bitmaplayer_network);
+  // CREATE TIME LAYOUT
+  s_res_image_fat_empty_android = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_FAT_EMPTY_ANDROID);
+  s_textlayer_time = text_layer_create(GRect(0, 0, 144, 72));
+  text_layer_set_font(s_textlayer_time, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
+  text_layer_set_background_color(s_textlayer_time, GColorClear);
+  layer_add_child(window_layer, (Layer *)s_textlayer_time);  
+  // CREATE PHONE BATTERY LAYOUT IMAGE
+  s_bitmaplayer_fat_empty_android = bitmap_layer_create(GRect(80, 103, 64, 64));
+  bitmap_layer_set_bitmap(s_bitmaplayer_fat_empty_android, s_res_image_fat_empty_android);
+  layer_add_child(window_layer, (Layer *)s_bitmaplayer_fat_empty_android);
+  // CREATE PHONE BATTERY LAYOUT TEXT
+  s_phone_battery_layer = text_layer_create(GRect(TRANSPARENT_BATTERY_X,TRANSPARENT_BATTERY_Y,TRANSPARENT_BATTERY_W,TRANSPARENT_BATTERY_H));
+  text_layer_set_text_alignment(s_phone_battery_layer, GTextAlignmentCenter);
+  layer_add_child(window_layer, (Layer *)s_phone_battery_layer);
+  // CREATE PHONE BATTERY GRAPHIC LEVEL LAYOUT
+  s_inverterlayer_phone_battery_level = inverter_layer_create(GRect(TRANSPARENT_BATTERY_X,TRANSPARENT_BATTERY_Y,TRANSPARENT_BATTERY_W,TRANSPARENT_BATTERY_H));
+  layer_add_child(window_layer, (Layer *)s_inverterlayer_phone_battery_level);
+  
+  //PEBBLE EVENTS
   bluetooth_connection_service_subscribe(bluetoothHandler);
-  bluetoothHandler(bluetooth_connection_service_peek());
-
-  // handle time
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  updateTime();
-
-  // handle pebble batterry
   battery_state_service_subscribe(pebbleBatteryHandler);
+  
+  // UPDATE PEBBLE STATUS
+  bluetoothHandler(bluetooth_connection_service_peek());
   pebbleBatteryHandler(battery_state_service_peek());
+  updateTime();
   
-  batteryStatus = persist_read_int(KEY_BATTERY_CHARGING);
-  batteryLevel = persist_read_int(KEY_BATTERY_LEVEL);
-  pushPhoneBatteryToLayout(s_phone_battery_layer,batteryLevel,batteryStatus);
-  
-  networkStatus = persist_read_int(KEY_NETWORK);
+  // UPDATE PHONE STATUS
+  pushPhoneBatteryToLayout(s_inverterlayer_phone_battery_level,s_phone_battery_layer,batteryLevel,batteryStatus,phoneConnected);
   pushPhoneNetworkStatusToLayout(s_bitmaplayer_network,s_res_image_phone_network,networkStatus);
   
   static char weather[16];
   persist_read_string(KEY_WEATHER,weather,sizeof(weather));
   text_layer_set_text(s_weather_layer,weather);
-  
 }
 
 static void main_window_unload(Window *window) {
@@ -152,12 +153,13 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_textlayer_time);
   
   bitmap_layer_destroy(s_bitmaplayer_pebble_battery);
-  bitmap_layer_destroy(s_bitmaplayer_pebble_connection);
   bitmap_layer_destroy(s_bitmaplayer_network);
   
   gbitmap_destroy(s_res_image_pbl);
-  gbitmap_destroy(s_res_image_phone_connection);
   gbitmap_destroy(s_res_image_phone_network);  
+  gbitmap_destroy(s_res_image_fat_empty_android);
+  
+  inverter_layer_destroy(s_inverterlayer_phone_battery_level);  
 }
 
 static void init() {

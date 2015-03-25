@@ -7,7 +7,6 @@ static void pushTimeToLayer(TextLayer *time_layer,TextLayer *date_layer) {
   struct tm *tick_time = localtime(&temp);
   static char buffer[16];
   static char buffer_date[64];
-
   if(clock_is_24h_style() == true) {
     strftime(buffer, sizeof(buffer), "%H:%M", tick_time);
   } else {
@@ -49,27 +48,37 @@ static uint32_t getPebbleBatteryImageResource(BatteryChargeState charge_state){
 }
 
 // push phone battery status
-static void pushPhoneBatteryToLayout(TextLayer *battery_layer,int batteryLevel,int batteryStatus){
+static void pushPhoneBatteryToLayout(InverterLayer *inverterlayer_phone_battery_level,TextLayer *battery_layer,int batteryLevel,int batteryStatus,bool phoneConnected){
   static char s_battery_buffer[16];
-  switch(batteryStatus){
-    case KEY_BATTERY_CHARGING_NONE:
-      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(-)", batteryLevel);
-      break;
-    case KEY_BATTERY_CHARGING_USB:
-      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(usb)", batteryLevel);
-      break;
-    case KEY_BATTERY_CHARGING_SET:
-      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(ac)", batteryLevel);
-      break;
-    case KEY_BATTERY_CHARGING_WIRELESS:
-      snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%(qi)", batteryLevel);
-      break;
+  if(phoneConnected){
+    static int newHeight;
+    newHeight = (int)(batteryLevel * ((double)TRANSPARENT_BATTERY_H / (double )KEY_BATTERY_LEVEL_MAX));
+    GRect bounds = layer_get_bounds(inverter_layer_get_layer (inverterlayer_phone_battery_level));
+    bounds.size.h = newHeight;
+    bounds.origin.y = TRANSPARENT_BATTERY_H - newHeight;// strange logic here
+    layer_set_bounds(inverter_layer_get_layer (inverterlayer_phone_battery_level),bounds);
+
+    switch(batteryStatus){
+      case KEY_BATTERY_CHARGING_NONE:
+        snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%%", batteryLevel);
+        break;
+      case KEY_BATTERY_CHARGING_USB:
+        snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%% (usb)", batteryLevel);
+        break;
+      case KEY_BATTERY_CHARGING_SET:
+        snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%% (ac)", batteryLevel);
+        break;
+      case KEY_BATTERY_CHARGING_WIRELESS:
+        snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d%% (qi)", batteryLevel);
+        break;
+    }
+  }else{
+    snprintf(s_battery_buffer, sizeof(s_battery_buffer), "OFF");
   }
   text_layer_set_text(battery_layer, s_battery_buffer);
 }
 
-static void pushPhoneNetworkStatusToLayout(BitmapLayer *s_bitmaplayer_network,GBitmap *s_res_image_phone_network,int networkStatus){
-  
+static void pushPhoneNetworkStatusToLayout(BitmapLayer *s_bitmaplayer_network,GBitmap *s_res_image_phone_network,int networkStatus){  
   switch(networkStatus){
     case KEY_NETWORK_OFF:
       s_res_image_phone_network = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_PHONE_NETWORK_NO);
@@ -82,9 +91,4 @@ static void pushPhoneNetworkStatusToLayout(BitmapLayer *s_bitmaplayer_network,GB
       break;
   }
   bitmap_layer_set_bitmap(s_bitmaplayer_network, s_res_image_phone_network);
-}
-
-static void applyTextStyle(TextLayer *s_layer){
-  text_layer_set_font(s_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-  text_layer_set_text_alignment(s_layer, GTextAlignmentCenter);
 }
