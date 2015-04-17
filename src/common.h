@@ -23,7 +23,7 @@ static void proceedPebbleBatteryLevel(BatteryChargeState charge_state,TextLayer 
     text_layer_set_text(watch_battery_text, "watch is charging");
   } else {
     static char battery_buffer[32];
-    snprintf(battery_buffer, sizeof(battery_buffer), "watch battery %d%%", charge_state.charge_percent);
+    snprintf(battery_buffer, sizeof(battery_buffer), "pebble %d%%", charge_state.charge_percent);
     text_layer_set_text(watch_battery_text,battery_buffer);
   }
 

@@ -36,9 +36,9 @@ static void updateTime(){
   struct tm *tick_time = localtime(&temp);
   static char formattedTime[32];
   if(clock_is_24h_style() == true) {
-    strftime(formattedTime, sizeof(formattedTime), "%H:%M%n%B %d", tick_time);
+    strftime(formattedTime, sizeof(formattedTime), "%H:%M%n%b %d", tick_time);
   } else {
-    strftime(formattedTime, sizeof(formattedTime), "%I:%M%n%B %d", tick_time);
+    strftime(formattedTime, sizeof(formattedTime), "%I:%M%n%b %d", tick_time);
   }
   // %A(%u)%n %d %B(%m)
   text_layer_set_text(s_textlayer_time,formattedTime);
@@ -107,27 +107,31 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, (Layer *)s_watch_battery_text);
   
   // CREATE watch BATTERY GRAPHIC LEVEL LAYOUT
-  s_inverterlayer_watch_battery = inverter_layer_create(GRect(0,0,PEBBLE_SCREEN_WIDTH,15));
+  s_inverterlayer_watch_battery = inverter_layer_create(GRect(0,3,PEBBLE_SCREEN_WIDTH,12));
   layer_add_child(window_layer, (Layer *)s_inverterlayer_watch_battery);
   
   // CREATE NETWORK LAYOUT
   s_bitmaplayer_network = bitmap_layer_create(GRect(1, 103, 64, 64));
   layer_add_child(window_layer, (Layer *)s_bitmaplayer_network);
+  
   // CREATE TIME LAYOUT
   s_textlayer_time = text_layer_create(GRect(0, 25, 144, 72));
   text_layer_set_text_alignment(s_textlayer_time, GTextAlignmentCenter);
-  text_layer_set_font(s_textlayer_time, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
+  text_layer_set_font(s_textlayer_time, fonts_get_system_font(FONT_KEY_DROID_SERIF_28_BOLD));
   text_layer_set_background_color(s_textlayer_time, GColorClear);
   layer_add_child(window_layer, (Layer *)s_textlayer_time);
+  
   // CREATE PHONE BATTERY LAYOUT IMAGE
   s_res_image_fat_empty_android = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_FAT_EMPTY_ANDROID);
   s_bitmaplayer_fat_empty_android = bitmap_layer_create(GRect(80, 103, 64, 64));
   bitmap_layer_set_bitmap(s_bitmaplayer_fat_empty_android, s_res_image_fat_empty_android);
   layer_add_child(window_layer, (Layer *)s_bitmaplayer_fat_empty_android);
+  
   // CREATE PHONE BATTERY LAYOUT TEXT
   s_phone_battery_layer = text_layer_create(GRect(TRANSPARENT_BATTERY_X,TRANSPARENT_BATTERY_Y,TRANSPARENT_BATTERY_W,TRANSPARENT_BATTERY_H));
   text_layer_set_text_alignment(s_phone_battery_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, (Layer *)s_phone_battery_layer);
+  
   // CREATE PHONE BATTERY GRAPHIC LEVEL LAYOUT
   s_inverterlayer_phone_battery_level = inverter_layer_create(GRect(TRANSPARENT_BATTERY_X,TRANSPARENT_BATTERY_Y,TRANSPARENT_BATTERY_W,TRANSPARENT_BATTERY_H));
   layer_add_child(window_layer, (Layer *)s_inverterlayer_phone_battery_level);
@@ -145,7 +149,6 @@ static void main_window_load(Window *window) {
   // UPDATE PHONE STATUS
   pushPhoneBatteryToLayout(s_inverterlayer_phone_battery_level,s_phone_battery_layer,batteryLevel,batteryStatus,phoneConnected);
   pushPhoneNetworkStatus(s_bitmaplayer_network,networkStatus,phoneConnected);
-
 }
 
 static void main_window_unload(Window *window) {

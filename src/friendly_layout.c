@@ -3,7 +3,7 @@
 
 // BEGIN AUTO-GENERATED UI CODE; DO NOT MODIFY
 static Window *s_window;
-static GFont s_res_bitham_30_black;
+static GFont s_res_gothic_28_bold;
 static TextLayer *s_textlayer_1;
 static InverterLayer *s_inverterlayer_1;
 static TextLayer *s_textlayer_2;
@@ -13,7 +13,7 @@ static void initialise_ui(void) {
   s_window = window_create();
   window_set_fullscreen(s_window, true);
   
-  s_res_bitham_30_black = fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK);
+  s_res_gothic_28_bold = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
   // s_textlayer_1
   s_textlayer_1 = text_layer_create(GRect(94, 127, 36, 32));
   text_layer_set_background_color(s_textlayer_1, GColorClear);
@@ -26,11 +26,11 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_inverterlayer_1);
   
   // s_textlayer_2
-  s_textlayer_2 = text_layer_create(GRect(1, 35, 144, 72));
+  s_textlayer_2 = text_layer_create(GRect(1, 36, 144, 72));
   text_layer_set_background_color(s_textlayer_2, GColorClear);
   text_layer_set_text(s_textlayer_2, "23:00 April 17");
   text_layer_set_text_alignment(s_textlayer_2, GTextAlignmentCenter);
-  text_layer_set_font(s_textlayer_2, s_res_bitham_30_black);
+  text_layer_set_font(s_textlayer_2, s_res_gothic_28_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)s_textlayer_2);
   
   // s_watch_battery_text
