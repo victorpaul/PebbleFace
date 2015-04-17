@@ -9,6 +9,11 @@
     "resources": {
         "media": [
             {
+                "file": "images/phone_network_mobile.png",
+                "name": "IMAGE_PHONE_NETWORK_MOBILE",
+                "type": "png"
+            },
+            {
                 "file": "images/fat_empty_android.png",
                 "name": "IMAGE_FAT_EMPTY_ANDROID",
                 "type": "png"
@@ -21,66 +26,6 @@
             {
                 "file": "images/phone_network_no.png",
                 "name": "IMAGE_PHONE_NETWORK_NO",
-                "type": "png"
-            },
-            {
-                "file": "images/phone_network_mobile.png",
-                "name": "IMAGE_PHONE_NETWORK_MOBILE",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_100.png",
-                "name": "IMAGE_PBL_100",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_90.png",
-                "name": "IMAGE_PBL_90",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_80.png",
-                "name": "IMAGE_PBL_80",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_70.png",
-                "name": "IMAGE_PBL_70",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_60.png",
-                "name": "IMAGE_PBL_60",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_50.png",
-                "name": "IMAGE_PBL_50",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_40.png",
-                "name": "IMAGE_PBL_40",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_30.png",
-                "name": "IMAGE_PBL_30",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_20.png",
-                "name": "IMAGE_PBL_20",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_10.png",
-                "name": "IMAGE_PBL_10",
-                "type": "png"
-            },
-            {
-                "file": "images/pbl_charging.png",
-                "name": "IMAGE_PBL_CHARGING",
                 "type": "png"
             }
         ]
